@@ -26,6 +26,15 @@ public:
 		}
 	}
 
+	// Called by the Extra Life power-up to grant one additional life
+	void AddLife()
+	{
+		mLives += 1;
+		FireLivesChanged();
+	}
+
+	int GetLives() const { return mLives; }
+
 	void AddListener(shared_ptr<IPlayerListener> listener)
 	{
 		mListeners.push_back(listener);
@@ -33,10 +42,18 @@ public:
 
 	void FirePlayerKilled()
 	{
-		// Send message to all listeners
 		for (PlayerListenerList::iterator lit = mListeners.begin();
 			lit != mListeners.end(); ++lit) {
 			(*lit)->OnPlayerKilled(mLives);
+		}
+	}
+
+	// Fires when lives change without the ship being destroyed (e.g. extra life pickup)
+	void FireLivesChanged()
+	{
+		for (PlayerListenerList::iterator lit = mListeners.begin();
+			lit != mListeners.end(); ++lit) {
+			(*lit)->OnPlayerKilled(mLives); // reuses OnPlayerKilled to refresh the GUI label
 		}
 	}
 
@@ -44,7 +61,6 @@ private:
 	int mLives;
 
 	typedef std::list< shared_ptr<IPlayerListener> > PlayerListenerList;
-
 	PlayerListenerList mListeners;
 };
 

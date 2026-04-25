@@ -20,10 +20,13 @@ public:
 	void OnObjectRemoved(GameWorld* world, shared_ptr<GameObject> object)
 	{
 		if (object->GetType() == GameObjectType("Asteroid")) {
- 			mScore += 10;
+			mScore += 10;
 			FireScoreChanged();
 		}
 	}
+
+	// Returns the current score (needed to save it at game-over for high score entry)
+	int GetScore() const { return mScore; }
 
 	void AddListener(shared_ptr<IScoreListener> listener)
 	{
@@ -32,7 +35,6 @@ public:
 
 	void FireScoreChanged()
 	{
-		// Send message to all listeners
 		for (ScoreListenerList::iterator lit = mListeners.begin(); lit != mListeners.end(); ++lit) {
 			(*lit)->OnScoreChanged(mScore);
 		}
@@ -42,7 +44,6 @@ private:
 	int mScore;
 
 	typedef std::list< shared_ptr<IScoreListener> > ScoreListenerList;
-
 	ScoreListenerList mListeners;
 };
 
