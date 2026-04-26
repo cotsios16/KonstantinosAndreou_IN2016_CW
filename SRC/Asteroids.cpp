@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "Asteroid.h"
 #include "Asteroids.h"
 #include "Animation.h"
@@ -544,10 +545,9 @@ void Asteroids::SpawnRandomPowerup()
 	if (which == 0)
 	{
 		// Extra life: use a lambda callback so the powerup can call Player::AddLife()
-		shared_ptr<Asteroids> thisPtr = shared_ptr<Asteroids>(this);
-		auto callback = [thisPtr]() {
-			thisPtr->mPlayer.AddLife();
-		};
+		auto callback = [this]() {
+			this->mPlayer.AddLife();
+			};
 		powerup = make_shared<ExtraLifePowerup>(callback);
 	}
 	else if (which == 1)
@@ -558,7 +558,11 @@ void Asteroids::SpawnRandomPowerup()
 	{
 		powerup = make_shared<TeleportPowerup>();
 	}
-
+	Animation* anim_ptr = AnimationManager::GetInstance().GetAnimationByName("asteroid1");
+	shared_ptr<Sprite> powerup_sprite = make_shared<Sprite>(anim_ptr->GetWidth(), anim_ptr->GetHeight(), anim_ptr);
+	powerup_sprite->SetLoopAnimation(true);
+	powerup->SetSprite(powerup_sprite);
+	powerup->SetScale(0.1f);
 	powerup->SetBoundingShape(make_shared<BoundingSphere>(powerup->GetThisPtr(), 5.0f));
 	mGameWorld->AddObject(powerup);
 }

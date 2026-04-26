@@ -88,16 +88,26 @@ void Spaceship::Shoot(void)
 
 bool Spaceship::CollisionTest(shared_ptr<GameObject> o)
 {
-	if (o->GetType() != GameObjectType("Asteroid")) return false;
+	if (o->GetType() != GameObjectType("Asteroid") &&
+		o->GetType() != GameObjectType("ExtraLifePowerup") &&
+		o->GetType() != GameObjectType("InvulnerabilityPowerup") &&
+		o->GetType() != GameObjectType("TeleportPowerup")) return false;
 	if (mBoundingShape.get() == NULL) return false;
 	if (o->GetBoundingShape().get() == NULL) return false;
 	return mBoundingShape->CollisionTest(o->GetBoundingShape());
 }
 
-void Spaceship::OnCollision(const GameObjectList &objects)
+void Spaceship::OnCollision(const GameObjectList& objects)
 {
-	// If invulnerable, ignore asteroid collisions entirely
-	if (IsInvulnerable()) return;
-
-	mWorld->FlagForRemoval(GetThisPtr());
+	for (GameObjectList::const_iterator it = objects.begin(); it != objects.end(); ++it)
+	{
+		if ((*it)->GetType() == GameObjectType("Asteroid"))
+		{
+			if (!IsInvulnerable())
+			{
+				mWorld->FlagForRemoval(GetThisPtr());
+				return;
+			}
+		}
+	}
 }
